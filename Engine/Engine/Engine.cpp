@@ -1,6 +1,7 @@
 #include "Engine.h"
 #include "Level/Level.h"
 #include "Core/Input.h"
+#include "Util/Util.h"
 
 #include <iostream>
 #include <Windows.h>
@@ -20,6 +21,9 @@ namespace Wanted
 
 		// 설정 파일 로드.
 		LoadSetting();
+
+		// 커서 끄기.
+		Util::TurnOffCursor();
 	}
 
 	Engine::~Engine()
@@ -57,9 +61,8 @@ namespace Wanted
 		currentTime = time.QuadPart;
 		previousTime = currentTime;
 
-		// 기준 프레임(단위: 초).
-		//float targetFrameRate = 120.0f;
-		setting.framerate = setting.framerate == 0.0f ? 60.0f : setting.framerate;
+		setting.framerate
+			= setting.framerate == 0.0f ? 60.0f : setting.framerate;
 		float oneFrameTime = 1.0f / setting.framerate;
 
 		// 엔진 루프(게임 루프).
@@ -92,11 +95,17 @@ namespace Wanted
 				previousTime = currentTime;
 
 				input->SavePreviousInputStates();
+
+				// 레벨에 요청된 추가/제거 처리.
+				if (mainLevel)
+				{
+					mainLevel->ProcessAddAndDestroyActors();
+				}
 			}
 		}
 
-		// Todo: 정리 작업.
-		std::cout << "Engine has been shutdown....\n";
+		// 정리.
+		Shutdown();
 	}
 
 	void Engine::QuitEngine()
@@ -132,11 +141,20 @@ namespace Wanted
 		return *instance;
 	}
 
+	void Engine::Shutdown()
+	{
+		// 정리 작업.
+		std::cout << "Engine has been shutdown....\n";
+
+		// 커서 켜기.
+		Util::TurnOnCursor();
+	}
+
 	void Engine::LoadSetting()
 	{
-		// 파일 열기.
+		// 엔진 설정 파일 열기.
 		FILE* file = nullptr;
-		fopen_s(&file, "../Config//Setting.txt", "rt");
+		fopen_s(&file, "../Config/Setting.txt", "rt");
 
 		// 예외처리.
 		if (!file)
