@@ -1,6 +1,7 @@
 #include "Player.h"
 #include "Core/Input.h"
 #include "Engine/Engine.h"
+#include "Game/Game.h"
 #include "Actor/Box.h"
 #include "Level/Level.h"
 
@@ -30,6 +31,14 @@ void Player::BeginPlay()
 void Player::Tick(float deltaTime)
 {
 	super::Tick(deltaTime);
+
+	// ESC키 처리.
+	if (Wanted::Input::Get().GetKeyDown(VK_ESCAPE))
+	{
+		// 메뉴 활성화.
+		Game::Get().ToggleMenu();
+		return;
+	}
 
 	// Q키 종료.
 	if (Wanted::Input::Get().GetKeyDown('Q'))
